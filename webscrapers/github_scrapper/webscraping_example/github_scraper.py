@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+import time
 
 from selenium import webdriver 
 #To launch browser
@@ -52,3 +53,6 @@ print(languages, '\n')
 for title, language in zip(titles, languages):
     print("RepoName : Language")
     print(title + ": " + language, '\n')
+
+time.sleep(2);
+browser.close();
