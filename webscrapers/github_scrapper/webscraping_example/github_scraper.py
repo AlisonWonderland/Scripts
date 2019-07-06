@@ -33,5 +33,22 @@ except TimeoutException:
     browser.quit()
 
 # Get the titles
-first_tile = browser.find_element_by_xpath("//span[@class='repo js-pinnable-item'][1]")
-print(type(first_tile))
+titles = browser.find_elements_by_xpath("//a[@class='text-bold flex-auto']")
+titles = [title.text for title in titles]
+
+#Print titles
+print("TITLES:")
+print(titles, '\n')
+
+# Get the languages
+languages = browser.find_elements_by_xpath("//p[@class='mb-0 f6 text-gray']")
+languages = [language.text for language in languages]
+
+#Print Languages
+print("LANGUAGES:")
+print(languages, '\n')
+
+
+for title, language in zip(titles, languages):
+    print("RepoName : Language")
+    print(title + ": " + language, '\n')
