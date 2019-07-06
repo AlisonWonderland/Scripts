@@ -38,7 +38,7 @@ titles = browser.find_elements_by_xpath("//a[@class='text-bold flex-auto']")
 titles = [title.text for title in titles]
 
 #Print titles
-print("TITLES:")
+print("\nTITLES:")
 print(titles, '\n')
 
 # Get the languages
