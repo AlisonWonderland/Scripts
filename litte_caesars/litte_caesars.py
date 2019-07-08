@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import time
+import time, sys
 #For the delay at the end to close the browser after its done
 from selenium import webdriver 
 #To launch browser
@@ -13,9 +13,52 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 #For handling timeouts
 
+def choose_profile(profiles):
+    print("Enter number of profile you want to use or 'q' to return to menu: ", end = "")        
+
+    while (1):
+        user_input = input()
+        #Check if input is number or string
+        if(user_input.isdigit()):
+            user_input = int(user_input)
+        elif(user_input == 'q'):
+            print() #For clearer output
+            return None
+        #If else is entered, it means user inputted an invalid string
+        else:
+            print('Invalid. Try again: ', end = "")
+            continue
+        #Reaching this point means that user input is an int and it needs to be
+        #be a valid index of the list 'profiles'
+        if((user_input < 0) or (user_input > len(profiles) - 1)):
+            print('Invalid. Try again: ', end = "")
+        else:
+            return profiles[user_input]
+
 def new_profile():
-    profiles_file = open('profiles.txt', 'w')
-    return 1
+    profiles_file = open('profiles.txt', 'a+')
+    
+    #Asking for login info
+    while(1):
+        print('\nEnter your login email: ', end = "")
+        email = input()
+
+        print('Enter your login password: ', end = "")
+        password = input()
+
+        print('\nYour username:', email, '| Your password:', password)
+        print("Is this correct? Enter y to proceed, q to return to menu, anything else to repeat: ", end = "")
+        response = input()
+        print() #For whitespace
+
+        if(response == 'y'):
+            profiles_file.write(email + ' ' + password + '\r\n') #Add login to file
+            break
+        elif(response == 'q'):
+            break
+
+    profiles_file.close()
+    return 
 
 def get_profiles():
     #check if file exists
@@ -25,33 +68,48 @@ def get_profiles():
         while(1):
             response = input("profiles.txt doesn't exist. Would you like to create it?\nEnter 'y' to create or 'n' to go back to menu.\n")
             if(response == 'y'):
-                return new_profile()
+                return 
             elif(response == 'n'):
                 return
             else:
                 print('Invalid. Try again.')
 
-    profiles = profiles_file.readlines()
-    #Print number of profile along side the actual email and password
-    for number, profile in enumerate(profiles):
-        print(number, profile)
-    
+    profiles = profiles_file.readlines() # Store logins in a list
 
-    #Choose profile/login
+    #Check if there are profiles in the file
+    if(not len(profiles)):
+        print('\nNo logins stored. Add new ones.\n')
 
+    #Print number of the login alongside the actual email and password
+    else:
+        print('\n-------------------------------------------------------------------')
+        for number, profile in enumerate(profiles):
+            print(number, profile)
+        print('-------------------------------------------------------------------\n')
 
     profiles_file.close()
 
-def intro():
-    print("Enter 'done' when you're ready to proceed to your order")
-    print("Enter '1' to show all usernames and choose one. 2 to enter a new login.")
+    return profiles
 
+def intro():
     while(1):
-        user_input = input() #or use raw input for string
+        print("Enter '1' to show all usernames and choose one. '2' to enter a new login.\nEnter q if you want to exit.\n")
+        user_input = input()
         if(user_input == '1'):
-            get_profiles()
+            #Print available profiles
+            profiles = get_profiles()
+            #If profiles is empty then repeat menu msg
+            if(len(profiles)):
+                profile = choose_profile(profiles)
+                if(profile == None):
+                    continue
+                else:
+                    break
         elif(user_input == '2'):
             new_profile()
+        elif(user_input == 'q'):
+            print('Exiting program.')
+            sys.exit()
         else:
             print('Invalid input')
 
