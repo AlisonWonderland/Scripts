@@ -18,6 +18,7 @@ def choose_profile(profiles):
 
     while (1):
         user_input = input()
+
         #Check if input is number or string
         if(user_input.isdigit()):
             user_input = int(user_input)
@@ -28,6 +29,7 @@ def choose_profile(profiles):
         else:
             print('Invalid. Try again: ', end = "")
             continue
+
         #Reaching this point means that user input is an int and it needs to be
         #be a valid index of the list 'profiles'
         if((user_input < 0) or (user_input > len(profiles) - 1)):
@@ -104,7 +106,7 @@ def intro():
                 if(profile == None):
                     continue
                 else:
-                    break
+                    return profile
         elif(user_input == '2'):
             new_profile()
         elif(user_input == 'q'):
@@ -113,8 +115,16 @@ def intro():
         else:
             print('Invalid input')
 
+#Get login
+login_info = intro()
+login_info = login_info.split(' ')
 
-intro()
+#Little caesars username
+lc_email = login_info[0]
+
+#Little caesars password, remove the newline before storing it into lc_password
+newline_index = login_info[1].find("\n")
+lc_password = login_info[1][0:newline_index]
 
 # Specifying incognito mode as you launch your browser[OPTIONAL]
 option = webdriver.ChromeOptions()
@@ -125,7 +135,7 @@ browser = webdriver.Chrome(executable_path='/mnt/d/Users/dimitri/Desktop/chromed
 # Go to little caesars website
 browser.get("https://littlecaesars.com/en-us/")
 
-# Wait 20 seconds for page to load
+# Wait 20 seconds for page to load, to press login button
 timeout = 20
 try:
     # Wait until the login logo shows up.
@@ -139,22 +149,18 @@ login_button = browser.find_element_by_xpath("//a[@class='sc-dqBHgY AYCxi']")
 print(type(login_button))
 login_button.click()
 
-# #Print titles
-# print("\nTITLES:")
-# print(titles, '\n')
+# Wait 20 seconds before entering login info
+timeout = 20
+try:
+    # Wait until the login logo shows up.
+    WebDriverWait(browser, timeout).until(EC.visibility_of_element_located((By.XPATH, "//div[@class='sc-hZeNU hRsEcQ']")))
+except TimeoutException:
+    print("Timed out waiting for page to load")
+    browser.quit()
 
-# # Get the languages
-# languages = browser.find_elements_by_xpath("//p[@class='mb-0 f6 text-gray']")
-# languages = [language.text for language in languages]
+email_input = browser.find_element_by_xpath("//input[@id='B1xobMEeZr']")
+email_input.send_keys(lc_email)
 
-# #Print Languages
-# print("LANGUAGES:")
-# print(languages, '\n')
+password_input = browser.find_element_by_xpath("//input[@id='H1-oWG4lZH']")
+password_input.send_keys(lc_password)
 
-
-# for title, language in zip(titles, languages):
-#     print("RepoName : Language")
-#     print(title + ": " + language, '\n')
-
-# time.sleep(5);
-# browser.close();
