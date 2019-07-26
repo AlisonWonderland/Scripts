@@ -33,3 +33,8 @@ Include the praw.ini file in the same directory as your script file.
 ## What I Learned
 * How to download and store images using requests and python file functions.
 * Threading can speed up the script by doing multiple requests at a time.
+* Putting code into a main() function and using 
+```python
+if __name__ == "__main__":
+```
+to make the code more readable.

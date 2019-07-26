@@ -8,6 +8,7 @@ import requests
 import os
 import re
 
+#This one and get_extension could be merged. Return an array with boolean and the extension.
 def is_valid_image(image_url):
     #check if link is an image by looking at file extension
     valid_extensions = ['jpg', 'jpeg', 'mpv', 'gifv', 'gif']
@@ -29,14 +30,22 @@ def get_extension(image_url):
 
 # The album/gallery id would be WDe1xRO when the link is https://imgur.com/gallery/WDe1xRO
 def get_album_id(album_url):
+    forward_slash_at_end = False
+
     for i in range(len(album_url)):
-        if(album_url[i] == '/'):
-            id_start_index = i + 1 #Add one so we don't include the second '/' from /gallery/ or /a/
+        if(album_url[i] == '/' and i != len(album_url) - 1):
+            id_start_index = i + 1 
+        elif(album_url[i] == '/' and i == len(album_url) - 1):
+            forward_slash_at_end = True
     
-    album_id = album_url[id_start_index:len(album_url)]
+    if(forward_slash_at_end):
+        album_id = album_url[id_start_index:len(album_url) - 1]
+    else:
+        album_id = album_url[id_start_index:len(album_url)]
     return album_id
 
 #The image id would be Cai5Ore, when the url is https://i.imgur.com/Cai5Ore.jpg
+#This could replace get_extension if user didn't want the reddit title used for the image name.
 def get_image_id(image_url):
     for i in range(len(image_url)):
         if(image_url[i] == '/'):
@@ -66,24 +75,30 @@ def image_download(image_url, title=None):
         with open(photo_path, 'wb') as f:
             f.write(requests.get(image_url).content)
 
-imgur_client_id = '' 
-imgur_client_secret = ''
 
-client = ImgurClient(imgur_client_id, imgur_client_secret)
+def main():
+    #put this in a main function
+    imgur_client_id = '' 
+    imgur_client_secret = ''
 
-start = datetime.utcnow()
+    client = ImgurClient(imgur_client_id, imgur_client_secret)
 
-reddit = praw.Reddit('bot1')
+    start = datetime.utcnow()
 
-subreddit = reddit.subreddit("") 
+    reddit = praw.Reddit('bot1')
 
-for submission in subreddit.hot(limit=5):
-    if(is_valid_image(submission.url)):
-       image_download(submission.url, submission.title);
+    subreddit = reddit.subreddit("") 
 
-    elif(is_imgur_album(submission.url)):
-        album_id = get_album_id(submission.url)
-        album_download(client, album_id)
+    for submission in subreddit.top(limit=5):
+        if(is_valid_image(submission.url)):
+            image_download(submission.url, submission.title);
 
-elasped = datetime.utcnow() - start
-print(elasped)
+        elif(is_imgur_album(submission.url)):
+            album_id = get_album_id(submission.url)
+            album_download(client, album_id)
+
+    elasped = datetime.utcnow() - start
+    print(elasped)
+
+if __name__ == "__main__":
+    main()
