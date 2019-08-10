@@ -4,15 +4,20 @@ import json
 import os
 from ibm_watson import SpeechToTextV1
 
+speech_to_text = SpeechToTextV1(
+    # Add apikey here
+    iam_apikey='',
+    url='https://stream.watsonplatform.net/speech-to-text/api'
+)
+
+
 def searchFiles():
     supported_formats = [".wav", ".flac", ".mp3", ".ogg"]
-   
-    curr_path = os.path.dirname(os.path.abspath(__file__))
-    # Not sure if it looks good, but I'll keep it for now.    
-    return [file for i in range(len(supported_formats)) for file in os.listdir(curr_path) if file.endswith(supported_formats[i])]
+    curr_directory = os.path.dirname(os.path.abspath(__file__))  
+    return [file for i in range(len(supported_formats)) for file in os.listdir(curr_directory) if file.endswith(supported_formats[i])]
 
-def printTranscript():
-    audio_path = os.path.dirname(os.path.abspath(__file__)) + '/audio-file.flac'
+def printTranscript(file):
+    audio_path = os.path.dirname(os.path.abspath(__file__)) + '/' + file
 
     with open(audio_path, 'rb') as audio_file:
         speech_recognition_results = speech_to_text.recognize(
@@ -21,15 +26,16 @@ def printTranscript():
         ).get_result()
 
     transcript = speech_recognition_results["results"][0]["alternatives"][0]["transcript"]
-    print("Transcript: ", transcript)
+    confidence = speech_recognition_results["results"][0]["alternatives"][0]["confidence"] * 100
+    print("\n++++++++++++++++++++++++++++++++++++++", file, "transcript++++++++++++++++++++++++++++++++++++++", end='\n')
+    print("Watson says with", str(confidence) + "%", "confidence that this was said:")
+    print(transcript, end='\n\n')
 
-# Don't worry the key has been deleted :)
-speech_to_text = SpeechToTextV1(
-    iam_apikey='34mk2TEXUBRWjma7q7bdkTVS9jZaJLsB8vDIDcdKE2zu',
-    url='https://stream.watsonplatform.net/speech-to-text/api'
-)
+def main():
+    files = searchFiles()
 
-files = searchFiles()
+    for i in range(len(files)):
+        printTranscript(files[i])
 
-for i in range(len(files)):
-    printTranscript()
+if __name__ == "__main__":
+    main()
