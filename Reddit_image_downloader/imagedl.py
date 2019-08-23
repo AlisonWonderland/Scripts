@@ -2,11 +2,32 @@
 
 from imgurpython import ImgurClient
 from datetime import datetime
-from bs4 import BeautifulSoup
+from queue import Queue
+from threading import Thread
 import praw
 import requests
 import os
 import re
+
+
+class DownloadWorker(Thread):
+    def __init__(self, queue):
+        Thread.__init__(self)
+        self.queue = queue
+
+    def run(self):
+        while True:
+            url, title, client = self.queue.get()
+            try:
+                if(is_valid_image(url)):
+                    image_download(url, title);
+
+                elif(is_imgur_album(url)):
+                    album_id = get_album_id(url)
+                    album_download(client, album_id)
+            finally:
+                self.queue.task_done()
+
 
 #This one and get_extension could be merged. Return an array with boolean and the extension.
 def is_valid_image(image_url):
@@ -67,8 +88,15 @@ def album_download(client, album_id):
 def image_download(image_url, title=None):
     if(title == None):
         title = get_image_id(image_url)
+    
+    images_directory = 'images/'
 
-    photo_path = 'test/' + title + get_extension(image_url)
+    try:
+        os.mkdir(images_directory)
+    except FileExistsError:
+        pass
+
+    photo_path = images_directory + title + get_extension(image_url)
 
     #This will download an image only when an image doesn't have the same title as a downloaded one
     if(not os.path.exists(photo_path)): 
@@ -80,7 +108,6 @@ def main():
     #put this in a main function
     imgur_client_id = '' 
     imgur_client_secret = ''
-
     client = ImgurClient(imgur_client_id, imgur_client_secret)
 
     start = datetime.utcnow()
@@ -89,14 +116,17 @@ def main():
 
     subreddit = reddit.subreddit("") 
 
-    for submission in subreddit.top(limit=5):
-        if(is_valid_image(submission.url)):
-            image_download(submission.url, submission.title);
+    queue = Queue()
+   
+    for x in range(8):
+        worker = DownloadWorker(queue)
+        worker.daemon = True
+        worker.start()
 
-        elif(is_imgur_album(submission.url)):
-            album_id = get_album_id(submission.url)
-            album_download(client, album_id)
+    for submission in subreddit.hot(limit=10):
+        queue.put((submission.url, submission.title, client))
 
+    queue.join()
     elasped = datetime.utcnow() - start
     print(elasped)
 

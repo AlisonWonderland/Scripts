@@ -1,10 +1,12 @@
 # Reddit image downloader
-Script that currently downloads images from the first 5 posts in 'hot' from a subreddit and stores them in a folder called 'test'. It can download images that are directly linked by the post and also download images from imgur albums. It uses PRAW, a Reddit API wrapper, and imgurpython, a python client for the Imgur api, to download Imgur albums. 
+Script that currently downloads images from the first 10 posts in 'hot' from a subreddit and stores them in a folder called 'images'. It can download images that are directly linked by the post and also download images from imgur albums. It uses PRAW and imgurpython.
 
-To specify the subreddit you wan to download images from, insert the name in the empty double quotes in this line of code in the 'main' function:
+To specify the subreddit you want to download images from, insert the name in the empty double quotes in this line of code in the 'main' function:
 ```python
 subreddit = reddit.subreddit("")
 ```
+
+Note: Used [this article](https://www.toptal.com/python/beginners-guide-to-concurrency-and-parallelism-in-python) to learn about multithreading with request.
 
 Note: You may not be able to view gifv and mpv files depending on your OS and media players.
 Note: Imgurpython is no longer supported. I plan on changing the script to adapt to the new api.
