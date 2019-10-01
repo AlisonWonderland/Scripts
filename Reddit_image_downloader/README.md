@@ -6,6 +6,8 @@ To specify the subreddit you want to download images from, insert the name in th
 subreddit = reddit.subreddit("")
 ```
 
+The number of posts downloaded can be increased without a large effect on the speed of the script since it uses concurrency to do simultaneous downloads/writes to the images.
+
 Note: Used [this article](https://www.toptal.com/python/beginners-guide-to-concurrency-and-parallelism-in-python) to learn about multithreading with request.
 
 Note: You may not be able to view gifv and mpv files depending on your OS and media players.
@@ -29,12 +31,9 @@ https://praw.readthedocs.io/en/latest/getting_started/configuration/prawini.html
 
 Include the praw.ini file in the same directory as your script file.
 
-## Things to improve
-* The code could run faster using threads, so that's the next feature to implement.
-
 ## What I Learned
 * How to download and store images using requests and python file functions.
-* Threading can speed up the script by doing multiple requests at a time.
+* Threading, allowing me to speed up the script by doing multiple requests at a time.
 * Putting code into a main() function and using 
 ```python
 if __name__ == "__main__":
